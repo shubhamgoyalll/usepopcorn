@@ -10,6 +10,12 @@
   --color-red-dark: #e03131;
 }
 
+.box::-webkit-scrollbar,
+.list::-webkit-scrollbar {
+  display: none;
+  scroll-behavior: smooth;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -55,7 +61,6 @@ body {
   background-color: var(--color-background-500);
   border-radius: 0.9rem;
   overflow: scroll;
-  overflow: hidden;
   position: relative;
 }
 
@@ -140,7 +145,6 @@ body {
   list-style: none;
   padding: 0.8rem 0;
   overflow: scroll;
-  overflow: hidden;
 }
 
 .list-watched {

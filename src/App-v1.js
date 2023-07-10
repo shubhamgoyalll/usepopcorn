@@ -1,5 +1,5 @@
 import "./index.css";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const tempMovieData = [
   {
@@ -51,34 +51,10 @@ const tempWatchedData = [
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
-const KEY = "d45496b3";
-
 export default function App() {
   // lifted up the state here from MovieList in App Comp as It is the nearest parent component to both - NumResults and MovieList
-  const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
-
-  // Do not fetch data or setState in render logic as it will create infinite loop of requests.
-  // const [movies, setMovies] = useState([]);
-  // const [watched, setWatched] = useState([]);
-  // fetch(`http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=interstellar`)
-  //   .then((res) => res.json())
-  //   .then((data) => setMovies(tempMovieData));
-
-  const query = "interstellar";
-
-  //We will use useEffect hook which allows us to write side effect
-  useEffect(function () {
-    //created function inside function because useEffect directy does not return promises
-    async function fetchMovies() {
-      const res = await fetch(
-        `http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`
-      );
-      const data = await res.json();
-      setMovies(data.Search);
-    }
-    fetchMovies();
-  }, []);
+  const [movies, setMovies] = useState(tempMovieData);
+  const [watched, setWatched] = useState(tempWatchedData);
 
   return (
     <>
