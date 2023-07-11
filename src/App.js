@@ -57,6 +57,7 @@ export default function App() {
   // lifted up the state here from MovieList in App Comp as It is the nearest parent component to both - NumResults and MovieList
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Do not fetch data or setState in render logic as it will create infinite loop of requests.
   // const [movies, setMovies] = useState([]);
@@ -71,11 +72,13 @@ export default function App() {
   useEffect(function () {
     //created function inside function because useEffect directy does not return promises
     async function fetchMovies() {
+      setIsLoading(true);
       const res = await fetch(
         `http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`
       );
       const data = await res.json();
       setMovies(data.Search);
+      setIsLoading(false);
     }
     fetchMovies();
   }, []);
@@ -87,9 +90,7 @@ export default function App() {
         <NumResults movies={movies} />
       </Navbar>
       <Main>
-        <Box>
-          <MovieList movies={movies} />
-        </Box>
+        <Box>{isLoading ? <Loader /> : <MovieList movies={movies} />}</Box>
         <Box>
           <WatchedSummary watched={watched} />
           <WatchedMoviesList watched={watched} />
@@ -107,6 +108,10 @@ export default function App() {
       </Main>
     </>
   );
+}
+
+function Loader() {
+  return <p className="loader">Loading...</p>;
 }
 
 function Navbar({ children }) {
