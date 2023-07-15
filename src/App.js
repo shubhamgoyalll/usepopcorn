@@ -59,7 +59,8 @@ export default function App() {
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const query = "Interstellar";
+  const [query, setQuery] = useState("");
+  const TempQuery = "sdzfd";
 
   // Do not fetch data or setState in render logic as it will create infinite loop of requests.
   // const [movies, setMovies] = useState([]);
@@ -68,37 +69,64 @@ export default function App() {
   //   .then((res) => res.json())
   //   .then((data) => setMovies(tempMovieData));
 
+  //Some examples of useEffect hook on different dependency array
+  // useEffect(function () {
+  //   console.log("On Initial Render");
+  // }, []);
+
+  // useEffect(function () {
+  //   console.log("On Every Render");
+  // });
+
+  // useEffect(
+  //   function () {
+  //     console.log("On Every query state change render");
+  //   },
+  //   [query]
+  // );
+
   //We will use useEffect hook which allows us to write side effect
-  useEffect(function () {
-    //created function inside function because useEffect directy does not return promises
-    async function fetchMovies() {
-      try {
-        setIsLoading(true);
-        const res = await fetch(
-          `http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`
-        );
-        if (!res.ok)
-          throw new Error(
-            "Something Happened with fetching the list of Movies"
+  useEffect(
+    function () {
+      //created function inside function because useEffect directy does not return promises
+      async function fetchMovies() {
+        try {
+          setIsLoading(true);
+          setError("");
+          const res = await fetch(
+            `http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${TempQuery}`
           );
-        const data = await res.json();
-        if (data.Response === "false")
-          throw new Error("Movie Not Found. Search for a diff Movie");
-        setMovies(data.Search);
-      } catch (err) {
-        console.log(err.message);
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
+          if (!res.ok)
+            throw new Error(
+              "Something Happened with fetching the list of Movies"
+            );
+          const data = await res.json();
+          if (data.Response === "false")
+            throw new Error("Movie Not Found. Search for a diff Movie");
+          console.log(data, "Search");
+          setMovies(data.Search);
+        } catch (err) {
+          console.log(err.message);
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
+        }
       }
-    }
-    fetchMovies();
-  }, []);
+
+      // if (query.length < 3) {
+      //   setMovies([]);
+      //   setError("");
+      //   return;
+      // }
+      fetchMovies();
+    },
+    [query]
+  );
 
   return (
     <>
       <Navbar>
-        <Search />
+        <Search query={query} setQuery={setQuery} />
         <NumResults movies={movies} />
       </Navbar>
       <Main>
@@ -132,7 +160,11 @@ function Loader() {
 }
 
 function ErrorMessage({ message }) {
-  return <div className="error">⛔ {message}</div>;
+  return (
+    <p className="error">
+      <span>⛔️</span> {message}
+    </p>
+  );
 }
 
 function Navbar({ children }) {
@@ -153,9 +185,7 @@ function Logo() {
   );
 }
 
-function Search() {
-  const [query, setQuery] = useState("");
-
+function Search({ query, setQuery }) {
   return (
     <input
       className="search"
