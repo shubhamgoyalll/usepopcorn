@@ -105,13 +105,15 @@ export default function App() {
   //We will use useEffect hook which allows us to write side effect
   useEffect(
     function () {
+      const controller = new AbortController();
       //created function inside function because useEffect directy does not return promises
       async function fetchMovies() {
         try {
           setIsLoading(true);
           setError("");
           const res = await fetch(
-            `http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`
+            `http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`,
+            { signal: controller.signal }
           );
           if (!res.ok)
             throw new Error(
@@ -122,9 +124,12 @@ export default function App() {
             throw new Error("Movie Not Found. Search for a diff Movie");
           // console.log(data.Search);
           setMovies(data.Search);
+          setError("");
         } catch (err) {
           console.log(err.message);
-          setError(err.message);
+          if (err.name !== "AbortError") {
+            setError(err.message);
+          }
         } finally {
           setIsLoading(false);
         }
@@ -136,6 +141,10 @@ export default function App() {
         return;
       }
       fetchMovies();
+
+      return function () {
+        controller.abort();
+      };
     },
     [query]
   );
