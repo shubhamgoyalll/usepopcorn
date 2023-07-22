@@ -60,7 +60,7 @@ export default function App() {
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [query, setQuery] = useState("inception");
+  const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
   const TempQuery = "wer";
 
@@ -102,6 +102,7 @@ export default function App() {
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
+
   //We will use useEffect hook which allows us to write side effect
   useEffect(
     function () {
@@ -126,8 +127,8 @@ export default function App() {
           setMovies(data.Search);
           setError("");
         } catch (err) {
-          console.log(err.message);
           if (err.name !== "AbortError") {
+            console.log(err.message);
             setError(err.message);
           }
         } finally {
@@ -140,6 +141,8 @@ export default function App() {
         setError("");
         return;
       }
+
+      handleCloseMovie();
       fetchMovies();
 
       return function () {
@@ -349,6 +352,24 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     onCloseMovie();
   }
 
+  //Using useEffect here for keypress event
+  useEffect(
+    function () {
+      function callback(e) {
+        if (e.code === "Escape") {
+          onCloseMovie();
+        }
+      }
+      document.addEventListener("keydown", callback);
+
+      //Cleanup function
+      return function () {
+        document.removeEventListener("keydown", callback);
+      };
+    },
+    [onCloseMovie]
+  );
+
   useEffect(
     function () {
       async function getMovieDetails() {
@@ -374,7 +395,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
       return function () {
         document.title = "usePopcorn";
         //title still has the last movie name because of closures concept
-        console.log(`Clean up movie name ${title}`);
+        // console.log(`Clean up movie name ${title}`);
       };
     },
     [title]
